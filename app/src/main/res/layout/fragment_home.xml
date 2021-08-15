@@ -60,82 +60,98 @@
 
         <TextView
             android:id="@+id/homeApp1"
-            style="@style/TextLarge"
-            android:layout_width="wrap_content"
+            style="@android:style/Widget.Holo.Button.Borderless"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
             android:hint="@string/app"
             android:paddingVertical="@dimen/home_app_padding_vertical"
             android:tag="@string/_1"
+            android:textAppearance="@style/TextLarge"
             android:visibility="gone" />
 
         <TextView
             android:id="@+id/homeApp2"
-            style="@style/TextLarge"
-            android:layout_width="wrap_content"
+            style="@android:style/Widget.Holo.Button.Borderless"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
             android:hint="@string/app"
             android:paddingVertical="@dimen/home_app_padding_vertical"
             android:tag="@string/_2"
+            android:textAppearance="@style/TextLarge"
             android:visibility="gone" />
 
         <TextView
             android:id="@+id/homeApp3"
-            style="@style/TextLarge"
-            android:layout_width="wrap_content"
+            style="@android:style/Widget.Holo.Button.Borderless"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
             android:hint="@string/app"
             android:paddingVertical="@dimen/home_app_padding_vertical"
             android:tag="@string/_3"
+            android:textAppearance="@style/TextLarge"
             android:visibility="gone" />
 
         <TextView
             android:id="@+id/homeApp4"
-            style="@style/TextLarge"
-            android:layout_width="wrap_content"
+            style="@android:style/Widget.Holo.Button.Borderless"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
             android:hint="@string/app"
             android:paddingVertical="@dimen/home_app_padding_vertical"
             android:tag="@string/_4"
+            android:textAppearance="@style/TextLarge"
             android:visibility="gone" />
 
         <TextView
             android:id="@+id/homeApp5"
-            style="@style/TextLarge"
-            android:layout_width="wrap_content"
+            style="@android:style/Widget.Holo.Button.Borderless"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
             android:hint="@string/app"
             android:paddingVertical="@dimen/home_app_padding_vertical"
             android:tag="@string/_5"
+            android:textAppearance="@style/TextLarge"
             android:visibility="gone" />
 
         <TextView
             android:id="@+id/homeApp6"
-            style="@style/TextLarge"
-            android:layout_width="wrap_content"
+            style="@android:style/Widget.Holo.Button.Borderless"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
             android:hint="@string/app"
             android:paddingVertical="@dimen/home_app_padding_vertical"
             android:tag="@string/_6"
+            android:textAppearance="@style/TextLarge"
             android:visibility="gone" />
 
         <TextView
             android:id="@+id/homeApp7"
-            style="@style/TextLarge"
-            android:layout_width="wrap_content"
+            style="@android:style/Widget.Holo.Button.Borderless"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
             android:hint="@string/app"
             android:paddingVertical="@dimen/home_app_padding_vertical"
             android:tag="@string/_7"
+            android:textAppearance="@style/TextLarge"
             android:visibility="gone" />
 
         <TextView
             android:id="@+id/homeApp8"
-            style="@style/TextLarge"
-            android:layout_width="wrap_content"
+            style="@android:style/Widget.Holo.Button.Borderless"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
             android:hint="@string/app"
             android:paddingVertical="@dimen/home_app_padding_vertical"
             android:tag="@string/_8"
+            android:textAppearance="@style/TextLarge"
             android:visibility="gone" />
 
     </LinearLayout>

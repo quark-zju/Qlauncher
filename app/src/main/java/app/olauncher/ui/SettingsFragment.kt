@@ -4,7 +4,6 @@ import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -53,13 +52,11 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         homeAppsNum.text = prefs.homeAppsNum.toString()
         populateKeyboardText()
         populateLockSettings()
-        populateWallpaperText()
         populateThemeColorText()
         populateAlignment()
         populateStatusBar()
         populateDateTime()
         populateSwipeApps()
-        populateActionHints()
         initClickListeners()
         initObservers()
     }
@@ -75,8 +72,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             R.id.toggleLock -> toggleLockMode()
             R.id.autoShowKeyboard -> toggleKeyboardText()
             R.id.homeAppsNum -> appsNumSelectLayout.visibility = View.VISIBLE
-            R.id.dailyWallpaperUrl -> openUrl(prefs.dailyWallpaperUrl)
-            R.id.dailyWallpaper -> toggleDailyWallpaperUpdate()
             R.id.alignment -> alignmentSelectLayout.visibility = View.VISIBLE
             R.id.alignmentLeft -> viewModel.updateHomeAlignment(Gravity.START)
             R.id.alignmentCenter -> viewModel.updateHomeAlignment(Gravity.CENTER)
@@ -99,13 +94,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
 
             R.id.swipeLeftApp -> showAppListIfEnabled(Constants.FLAG_SET_SWIPE_LEFT_APP)
             R.id.swipeRightApp -> showAppListIfEnabled(Constants.FLAG_SET_SWIPE_RIGHT_APP)
-
-            R.id.about -> openUrl(Constants.URL_ABOUT_OLAUNCHER)
-            R.id.share -> shareApp()
-            R.id.rate -> rateApp()
-            R.id.follow -> openUrl(Constants.URL_TWITTER_TANUJ)
-            R.id.privacy -> openUrl(Constants.URL_OLAUNCHER_PRIVACY)
-            R.id.github -> openUrl(Constants.URL_OLAUNCHER_GITHUB)
         }
     }
 
@@ -115,7 +103,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
                 prefs.appLabelAlignment = prefs.homeAlignment
                 findNavController().navigate(R.id.action_settingsFragment_to_appListFragment)
             }
-            R.id.dailyWallpaper -> removeWallpaper()
             R.id.swipeLeftApp -> toggleSwipeLeft()
             R.id.swipeRightApp -> toggleSwipeRight()
             R.id.toggleLock -> {
@@ -134,8 +121,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         autoShowKeyboard.setOnClickListener(this)
         toggleLock.setOnClickListener(this)
         homeAppsNum.setOnClickListener(this)
-        dailyWallpaperUrl.setOnClickListener(this)
-        dailyWallpaper.setOnClickListener(this)
         alignment.setOnClickListener(this)
         alignmentLeft.setOnClickListener(this)
         alignmentCenter.setOnClickListener(this)
@@ -148,13 +133,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         themeLight.setOnClickListener(this)
         themeDark.setOnClickListener(this)
 
-        about.setOnClickListener(this)
-        share.setOnClickListener(this)
-        rate.setOnClickListener(this)
-        follow.setOnClickListener(this)
-        privacy.setOnClickListener(this)
-        github.setOnClickListener(this)
-
         maxApps0.setOnClickListener(this)
         maxApps1.setOnClickListener(this)
         maxApps2.setOnClickListener(this)
@@ -165,7 +143,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         maxApps7.setOnClickListener(this)
         maxApps8.setOnClickListener(this)
 
-        dailyWallpaper.setOnLongClickListener(this)
         alignment.setOnLongClickListener(this)
         swipeLeftApp.setOnLongClickListener(this)
         swipeRightApp.setOnLongClickListener(this)
@@ -317,30 +294,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         populateLockSettings()
     }
 
-    private fun removeWallpaper() {
-        setPlainWallpaper(requireContext(), android.R.color.black)
-        if (!prefs.dailyWallpaper) return
-        prefs.dailyWallpaper = false
-        populateWallpaperText()
-        viewModel.cancelWallpaperWorker()
-    }
-
-    private fun toggleDailyWallpaperUpdate() {
-        prefs.dailyWallpaper = !prefs.dailyWallpaper
-        populateWallpaperText()
-        if (prefs.dailyWallpaper) {
-            viewModel.setWallpaperWorker()
-            showWallpaperToasts()
-        } else viewModel.cancelWallpaperWorker()
-    }
-
-    private fun showWallpaperToasts() {
-        if (!isOlauncherDefault(requireContext()))
-            showToastLong(requireContext(), "Olauncher is not default launcher.\nDaily wallpaper update may fail.")
-        else
-            showToastShort(requireContext(), "Your wallpaper will update shortly")
-    }
-
     private fun updateHomeAppsNum(num: Int) {
         homeAppsNum.text = num.toString()
         appsNumSelectLayout.visibility = View.GONE
@@ -359,17 +312,9 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         populateThemeColorText()
         when (prefs.themeColor) {
             Constants.THEME_MODE_DARK -> {
-                if (prefs.dailyWallpaper) {
-                    setPlainWallpaper(requireContext(), android.R.color.black)
-                    viewModel.setWallpaperWorker()
-                }
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             }
             else -> {
-                if (prefs.dailyWallpaper) {
-                    setPlainWallpaper(requireContext(), android.R.color.white)
-                    viewModel.setWallpaperWorker()
-                }
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
         }
@@ -388,11 +333,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         else autoShowKeyboard.text = getString(R.string.off)
     }
 
-    private fun populateWallpaperText() {
-        if (prefs.dailyWallpaper) dailyWallpaper.text = getString(R.string.on)
-        else dailyWallpaper.text = getString(R.string.off)
-    }
-
     private fun populateAlignment() {
         when (prefs.homeAlignment) {
             Gravity.START -> alignment.text = getString(R.string.left)
@@ -404,50 +344,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
     private fun populateLockSettings() {
         if (prefs.lockModeOn) toggleLock.text = getString(R.string.on)
         else toggleLock.text = getString(R.string.off)
-    }
-
-    private fun openUrl(url: String) {
-        if (url.isEmpty()) return
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = Uri.parse(url)
-        startActivity(intent)
-    }
-
-    private fun shareApp() {
-        val message = "You should use your phone, not the other way round. -Olauncher\n" +
-                Constants.URL_OLAUNCHER_PLAY_STORE
-        val sendIntent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, message)
-            type = "text/plain"
-        }
-
-        val shareIntent = Intent.createChooser(sendIntent, null)
-        startActivity(shareIntent)
-    }
-
-    private fun rateApp() {
-        val intent = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse(Constants.URL_OLAUNCHER_PLAY_STORE)
-        )
-        var flags = Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
-        flags = flags or Intent.FLAG_ACTIVITY_NEW_DOCUMENT
-        intent.addFlags(flags)
-        startActivity(intent)
-    }
-
-    private fun sendEmailIntent() {
-        val emailIntent = Intent(Intent.ACTION_SENDTO)
-        emailIntent.data = Uri.parse(
-            "mailto:thetanuj1@gmail.com?" +
-                    "subject=Hello%20Team%20Olauncher!"
-        )
-        try {
-            startActivity(emailIntent)
-        } catch (e: Exception) {
-            showToastLong(requireContext(), "Failed! Send email to thetanuj1@gmail.com")
-        }
     }
 
     private fun populateSwipeApps() {
@@ -474,18 +370,5 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             R.id.action_settingsFragment_to_appListFragment,
             bundleOf("flag" to flag)
         )
-    }
-
-    private fun populateActionHints() {
-        when (prefs.toShowHintCounter) {
-            Constants.HINT_RATE_US -> {
-                viewModel.showMessageDialog(getString(R.string.rate_us_message))
-                rate.setCompoundDrawablesWithIntrinsicBounds(0, android.R.drawable.arrow_down_float, 0, 0)
-            }
-            Constants.HINT_SHARE -> {
-                viewModel.showMessageDialog(getString(R.string.share_message))
-                share.setCompoundDrawablesWithIntrinsicBounds(0, android.R.drawable.arrow_down_float, 0, 0)
-            }
-        }
     }
 }

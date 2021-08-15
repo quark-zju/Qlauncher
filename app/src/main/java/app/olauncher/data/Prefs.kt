@@ -13,16 +13,13 @@ class Prefs(context: Context) {
     private val LOCK_MODE = "LOCK_MODE"
     private val HOME_APPS_NUM = "HOME_APPS_NUM"
     private val AUTO_SHOW_KEYBOARD = "AUTO_SHOW_KEYBOARD"
-    private val DAILY_WALLPAPER = "DAILY_WALLPAPER"
-    private val DAILY_WALLPAPER_URL = "DAILY_WALLPAPER_URL"
-    private val WALLPAPER_UPDATED_DAY = "WALLPAPER_UPDATED_DAY"
     private val HOME_ALIGNMENT = "HOME_ALIGNMENT"
     private val APP_LABEL_ALIGNMENT = "APP_LABEL_ALIGNMENT"
     private val STATUS_BAR = "STATUS_BAR"
     private val DATE_TIME = "DATE_TIME"
     private val SWIPE_LEFT_ENABLED = "SWIPE_LEFT_ENABLED"
     private val SWIPE_RIGHT_ENABLED = "SWIPE_RIGHT_ENABLED"
-    private val SCREEN_TIMEOUT = "SCREEN_TIMEOUT"
+    private val DOUBLE_TAP_ENABLED = "DOUBLE_TAP_ENABLED"
     private val HIDDEN_APPS = "HIDDEN_APPS"
     private val HIDDEN_APPS_UPDATED = "HIDDEN_APPS_UPDATED"
     private val SHOW_HINT_COUNTER = "SHOW_HINT_COUNTER"
@@ -82,18 +79,6 @@ class Prefs(context: Context) {
         get() = prefs.getBoolean(AUTO_SHOW_KEYBOARD, true)
         set(value) = prefs.edit().putBoolean(AUTO_SHOW_KEYBOARD, value).apply()
 
-    var dailyWallpaper: Boolean
-        get() = prefs.getBoolean(DAILY_WALLPAPER, false)
-        set(value) = prefs.edit().putBoolean(DAILY_WALLPAPER, value).apply()
-
-    var dailyWallpaperUrl: String
-        get() = prefs.getString(DAILY_WALLPAPER_URL, "").toString()
-        set(value) = prefs.edit().putString(DAILY_WALLPAPER_URL, value).apply()
-
-    var wallpaperUpdatedDay: String
-        get() = prefs.getString(WALLPAPER_UPDATED_DAY, "").toString()
-        set(value) = prefs.edit().putString(WALLPAPER_UPDATED_DAY, value).apply()
-
     var homeAppsNum: Int
         get() = prefs.getInt(HOME_APPS_NUM, 4)
         set(value) = prefs.edit().putInt(HOME_APPS_NUM, value).apply()
@@ -125,10 +110,6 @@ class Prefs(context: Context) {
     var themeColor: Int
         get() = prefs.getInt(THEME_COLOR, Constants.THEME_MODE_DARK)
         set(value) = prefs.edit().putInt(THEME_COLOR, value).apply()
-
-    var screenTimeout: Int
-        get() = prefs.getInt(SCREEN_TIMEOUT, 30000) // Default: 30 seconds
-        set(value) = prefs.edit().putInt(SCREEN_TIMEOUT, value).apply()
 
     var hiddenApps: MutableSet<String>
         get() = prefs.getStringSet(HIDDEN_APPS, mutableSetOf()) as MutableSet<String>

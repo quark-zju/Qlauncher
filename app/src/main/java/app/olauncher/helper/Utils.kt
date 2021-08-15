@@ -1,6 +1,5 @@
 package app.olauncher.helper
 
-import android.app.WallpaperManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -24,14 +23,9 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import app.olauncher.BuildConfig
 import app.olauncher.data.AppModel
-import app.olauncher.data.Constants
 import app.olauncher.data.Prefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
 import java.text.Collator
 import java.util.*
 import kotlin.math.pow
@@ -188,134 +182,10 @@ fun resetDefaultLauncher(context: Context) {
     }
 }
 
-fun setPlainWallpaper(context: Context, color: Int) {
-    try {
-        val bitmap = Bitmap.createBitmap(1000, 2000, Bitmap.Config.ARGB_8888)
-        bitmap.eraseColor(context.getColor(color))
-        val manager = WallpaperManager.getInstance(context)
-        manager.setBitmap(bitmap)
-        bitmap.recycle()
-    } catch (e: Exception) {
-    }
-}
-
 fun openAppInfo(context: Context, userHandle: UserHandle, packageName: String) {
     val launcher = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
     val intent: Intent? = context.packageManager.getLaunchIntentForPackage(packageName)
     launcher.startAppDetailsActivity(intent?.component, userHandle, null, null)
-}
-
-suspend fun getBitmapFromURL(src: String?): Bitmap? {
-    return withContext(Dispatchers.IO) {
-        var bitmap: Bitmap? = null
-        try {
-            val url = URL(src)
-            val connection: HttpURLConnection = url
-                .openConnection() as HttpURLConnection
-            connection.doInput = true
-            connection.connect()
-            val input: InputStream = connection.inputStream
-            bitmap = BitmapFactory.decodeStream(input)
-        } catch (e: java.lang.Exception) {
-        }
-        bitmap
-    }
-}
-
-suspend fun getWallpaperBitmap(originalImage: Bitmap, width: Int, height: Int): Bitmap {
-    return withContext(Dispatchers.IO) {
-
-        val background = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-
-        val originalWidth: Float = originalImage.width.toFloat()
-        val originalHeight: Float = originalImage.height.toFloat()
-
-        val canvas = Canvas(background)
-        val scale: Float = height / originalHeight
-
-        val xTranslation: Float = (width - originalWidth * scale) / 2.0f
-        val yTranslation = 0.0f
-
-        val transformation = Matrix()
-        transformation.postTranslate(xTranslation, yTranslation)
-        transformation.preScale(scale, scale)
-
-        val paint = Paint()
-        paint.isFilterBitmap = true
-        canvas.drawBitmap(originalImage, transformation, paint)
-
-        background
-    }
-}
-
-suspend fun setWallpaper(appContext: Context, url: String): Boolean {
-    return withContext(Dispatchers.IO) {
-        val originalImageBitmap = getBitmapFromURL(url) ?: return@withContext false
-        val wallpaperManager = WallpaperManager.getInstance(appContext)
-
-        val (width, height) = getScreenDimensions(appContext)
-        val scaledBitmap = getWallpaperBitmap(originalImageBitmap, width, height)
-
-        try {
-            wallpaperManager.setBitmap(scaledBitmap)
-        } catch (e: Exception) {
-            return@withContext false
-        }
-
-        try {
-            originalImageBitmap.recycle()
-            scaledBitmap.recycle()
-        } catch (e: Exception) {
-        }
-        true
-    }
-}
-
-fun getScreenDimensions(context: Context): Pair<Int, Int> {
-    val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    val point = Point()
-    windowManager.defaultDisplay.getRealSize(point)
-    return Pair(point.x, point.y)
-}
-
-suspend fun getTodaysWallpaper(wallType: String): String {
-    return withContext(Dispatchers.IO) {
-        var wallpaperUrl: String
-        val calendar = Calendar.getInstance()
-        val month = calendar.get(Calendar.MONTH) + 1
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-        val key = String.format("%d_%d", month % 3, day)
-
-        try {
-            val url = URL(Constants.URL_WALLPAPERS)
-            val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
-            connection.doInput = true
-            connection.connect()
-
-            val inputStream = connection.inputStream
-            val scanner = Scanner(inputStream)
-            val stringBuffer = StringBuffer()
-            while (scanner.hasNext()) {
-                stringBuffer.append(scanner.nextLine())
-            }
-
-            val json = JSONObject(stringBuffer.toString())
-            val wallpapers = json.getString(key)
-            val wallpapersJson = JSONObject(wallpapers)
-            wallpaperUrl = wallpapersJson.getString(wallType)
-            wallpaperUrl
-
-        } catch (e: Exception) {
-            wallpaperUrl = getBackupWallpaper(wallType)
-            wallpaperUrl
-        }
-    }
-}
-
-fun getBackupWallpaper(wallType: String): String {
-    return if (wallType == Constants.WALL_TYPE_LIGHT)
-        Constants.URL_DEFAULT_LIGHT_WALLPAPER
-    else Constants.URL_DEFAULT_DARK_WALLPAPER
 }
 
 fun openDialerApp(context: Context) {

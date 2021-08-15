@@ -8,13 +8,11 @@ import android.os.UserHandle
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.work.*
 import app.olauncher.data.AppModel
 import app.olauncher.data.Constants
 import app.olauncher.data.Prefs
 import app.olauncher.helper.*
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val appContext = application.applicationContext
@@ -97,6 +95,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 prefs.appNameSwipeRight = appModel.appLabel
                 prefs.appPackageSwipeRight = appModel.appPackage
                 prefs.appUserSwipeRight = appModel.user.toString()
+                updateSwipeApps()
+            }
+            Constants.FLAG_SET_DOUBLE_TAP_APP -> {
+                prefs.appNameDoubleTap = appModel.appLabel
+                prefs.appPackageDoubleTap = appModel.appPackage
+                prefs.appUserDoubleTap = appModel.user.toString()
                 updateSwipeApps()
             }
         }

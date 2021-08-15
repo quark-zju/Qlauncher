@@ -467,6 +467,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginEnd="12dp"
+            android:layout_marginBottom="48dp"
             android:background="@drawable/rounded_rect_shade_color"
             android:orientation="vertical"
             android:paddingHorizontal="8dp"
@@ -556,13 +557,14 @@
                     android:textColor="?attr/primaryColor" />
 
                 <TextView
-                    android:id="@+id/toggleLock"
+                    android:id="@+id/doubleTapApp"
                     style="@style/TextSmallBold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:padding="10dp"
-                    android:text="@string/off"
+                    android:layout_gravity="end|bottom"
+                    android:layout_marginEnd="4dp"
+                    android:lines="1"
+                    android:padding="8dp"
                     android:textAllCaps="true" />
             </FrameLayout>
         </LinearLayout>

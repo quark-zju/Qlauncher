@@ -1,12 +1,7 @@
 package app.olauncher.ui
 
-import android.app.admin.DevicePolicyManager
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.view.*
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.bundleOf
@@ -19,15 +14,12 @@ import app.olauncher.R
 import app.olauncher.data.Constants
 import app.olauncher.data.Prefs
 import app.olauncher.helper.*
-import app.olauncher.listener.DeviceAdmin
 import kotlinx.android.synthetic.main.fragment_settings.*
 
 class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListener {
 
     private lateinit var prefs: Prefs
     private lateinit var viewModel: MainViewModel
-    private lateinit var deviceManager: DevicePolicyManager
-    private lateinit var componentName: ComponentName
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,13 +37,8 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         } ?: throw Exception("Invalid Activity")
         viewModel.isOlauncherDefault()
 
-        deviceManager = context?.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-        componentName = ComponentName(requireContext(), DeviceAdmin::class.java)
-        checkAdminPermission()
-
         homeAppsNum.text = prefs.homeAppsNum.toString()
         populateKeyboardText()
-        populateLockSettings()
         populateThemeColorText()
         populateAlignment()
         populateStatusBar()
@@ -69,7 +56,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             R.id.olauncherHiddenApps -> showHiddenApps()
             R.id.appInfo -> openAppInfo(requireContext(), android.os.Process.myUserHandle(), BuildConfig.APPLICATION_ID)
             R.id.setLauncher -> viewModel.resetDefaultLauncherApp(requireContext())
-            R.id.toggleLock -> toggleLockMode()
             R.id.autoShowKeyboard -> toggleKeyboardText()
             R.id.homeAppsNum -> appsNumSelectLayout.visibility = View.VISIBLE
             R.id.alignment -> alignmentSelectLayout.visibility = View.VISIBLE
@@ -94,6 +80,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
 
             R.id.swipeLeftApp -> showAppListIfEnabled(Constants.FLAG_SET_SWIPE_LEFT_APP)
             R.id.swipeRightApp -> showAppListIfEnabled(Constants.FLAG_SET_SWIPE_RIGHT_APP)
+            R.id.doubleTapApp -> showAppListIfEnabled(Constants.FLAG_SET_DOUBLE_TAP_APP)
         }
     }
 
@@ -105,10 +92,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             }
             R.id.swipeLeftApp -> toggleSwipeLeft()
             R.id.swipeRightApp -> toggleSwipeRight()
-            R.id.toggleLock -> {
-                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                deviceManager.removeActiveAdmin(componentName) // for backward compatibility
-            }
+            R.id.doubleTapApp -> toggleDoubleTap()
         }
         return true
     }
@@ -119,7 +103,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         appInfo.setOnClickListener(this)
         setLauncher.setOnClickListener(this)
         autoShowKeyboard.setOnClickListener(this)
-        toggleLock.setOnClickListener(this)
+        doubleTapApp.setOnClickListener(this)
         homeAppsNum.setOnClickListener(this)
         alignment.setOnClickListener(this)
         alignmentLeft.setOnClickListener(this)
@@ -146,7 +130,7 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         alignment.setOnLongClickListener(this)
         swipeLeftApp.setOnLongClickListener(this)
         swipeRightApp.setOnLongClickListener(this)
-        toggleLock.setOnLongClickListener(this)
+        doubleTapApp.setOnLongClickListener(this)
     }
 
     private fun initObservers() {
@@ -186,6 +170,17 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         } else {
             swipeRightApp.setTextColor(requireContext().getColorFromAttr(R.attr.primaryColorTrans50))
             showToastShort(requireContext(), "Swipe right app disabled")
+        }
+    }
+
+    private fun toggleDoubleTap() {
+        prefs.doubleTapEnabled = !prefs.doubleTapEnabled
+        if (prefs.doubleTapEnabled) {
+            doubleTapApp.setTextColor(requireContext().getColorFromAttr(R.attr.primaryColor))
+            showToastShort(requireContext(), "Double tap app enabled")
+        } else {
+            doubleTapApp.setTextColor(requireContext().getColorFromAttr(R.attr.primaryColorTrans50))
+            showToastShort(requireContext(), "Double tap app disabled")
         }
     }
 
@@ -256,44 +251,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         )
     }
 
-    private fun checkAdminPermission() {
-        val isAdmin: Boolean = deviceManager.isAdminActive(componentName)
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P)
-            prefs.lockModeOn = isAdmin
-    }
-
-    private fun toggleLockMode() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            when {
-                prefs.lockModeOn -> {
-                    prefs.lockModeOn = false
-                    deviceManager.removeActiveAdmin(componentName) // for backward compatibility
-                }
-                isAccessServiceEnabled(requireContext()) -> prefs.lockModeOn = true
-                else -> {
-                    showToastLong(requireContext(), "Please turn on accessibility service for Olauncher")
-                    startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                }
-            }
-        } else {
-            val isAdmin: Boolean = deviceManager.isAdminActive(componentName)
-            if (isAdmin) {
-                deviceManager.removeActiveAdmin(componentName)
-                prefs.lockModeOn = false
-                showToastShort(requireContext(), "Admin permission removed.")
-            } else {
-                val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-                intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName)
-                intent.putExtra(
-                    DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                    getString(R.string.admin_permission_message)
-                )
-                activity?.startActivityForResult(intent, Constants.REQUEST_CODE_ENABLE_ADMIN)
-            }
-        }
-        populateLockSettings()
-    }
-
     private fun updateHomeAppsNum(num: Int) {
         homeAppsNum.text = num.toString()
         appsNumSelectLayout.visibility = View.GONE
@@ -341,18 +298,16 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         }
     }
 
-    private fun populateLockSettings() {
-        if (prefs.lockModeOn) toggleLock.text = getString(R.string.on)
-        else toggleLock.text = getString(R.string.off)
-    }
-
     private fun populateSwipeApps() {
         swipeLeftApp.text = prefs.appNameSwipeLeft
         swipeRightApp.text = prefs.appNameSwipeRight
+        doubleTapApp.text = prefs.appNameDoubleTap
         if (!prefs.swipeLeftEnabled)
             swipeLeftApp.setTextColor(requireContext().getColorFromAttr(R.attr.primaryColorTrans50))
         if (!prefs.swipeRightEnabled)
             swipeRightApp.setTextColor(requireContext().getColorFromAttr(R.attr.primaryColorTrans50))
+        if (!prefs.doubleTapEnabled)
+            doubleTapApp.setTextColor(requireContext().getColorFromAttr(R.attr.primaryColorTrans50))
     }
 
     private fun showAppListIfEnabled(flag: Int) {
@@ -361,6 +316,10 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             return
         }
         if ((flag == Constants.FLAG_SET_SWIPE_RIGHT_APP) and !prefs.swipeRightEnabled) {
+            showToastShort(requireContext(), "Long press to enable")
+            return
+        }
+        if ((flag == Constants.FLAG_SET_DOUBLE_TAP_APP) and !prefs.doubleTapEnabled) {
             showToastShort(requireContext(), "Long press to enable")
             return
         }

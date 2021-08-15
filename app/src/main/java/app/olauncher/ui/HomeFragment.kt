@@ -3,10 +3,8 @@ package app.olauncher.ui
 import android.annotation.SuppressLint
 import android.app.admin.DevicePolicyManager
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -296,18 +294,11 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         else openCameraApp(requireContext())
     }
 
-    private fun lockPhone() {
-        requireActivity().runOnUiThread {
-            try {
-                deviceManager.lockNow()
-            } catch (e: SecurityException) {
-                showToastLong(requireContext(), "Please turn on double tap to lock")
-                findNavController().navigate(R.id.action_mainFragment_to_settingsFragment)
-            } catch (e: Exception) {
-                showToastLong(requireContext(), "Olauncher failed to lock device.\nPlease check your app settings.")
-                prefs.lockModeOn = false
-            }
-        }
+    private fun openDoubleTapApp() {
+        if (!prefs.doubleTapEnabled) return
+        if (prefs.appPackageDoubleTap.isNotEmpty())
+            launchApp(prefs.appNameDoubleTap, prefs.appPackageDoubleTap, android.os.Process.myUserHandle().toString())
+        else openCameraApp(requireContext())
     }
 
     private fun showStatusBar() {
@@ -378,24 +369,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
 
             override fun onDoubleClick() {
                 super.onDoubleClick()
-                if (prefs.lockModeOn)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        requireActivity().runOnUiThread {
-                            if (isAccessServiceEnabled(requireContext()))
-                                lock.performClick()
-                            else {
-                                prefs.lockModeOn = false
-                                showToastLong(requireContext(), "Please turn on accessibility service for Olauncher")
-                                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                            }
-                        }
-                    } else
-                        lockPhone()
-            }
-
-            override fun onTripleClick() {
-                if (prefs.lockModeOn) lockPhone()
-                super.onTripleClick()
+                openDoubleTapApp()
             }
         }
     }

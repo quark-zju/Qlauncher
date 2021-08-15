@@ -10,7 +10,6 @@ class Prefs(context: Context) {
     private val FIRST_OPEN = "FIRST_OPEN"
     private val FIRST_SETTINGS_OPEN = "FIRST_SETTINGS_OPEN"
     private val FIRST_HIDE = "FIRST_HIDE"
-    private val LOCK_MODE = "LOCK_MODE"
     private val HOME_APPS_NUM = "HOME_APPS_NUM"
     private val AUTO_SHOW_KEYBOARD = "AUTO_SHOW_KEYBOARD"
     private val HOME_ALIGNMENT = "HOME_ALIGNMENT"
@@ -52,10 +51,13 @@ class Prefs(context: Context) {
 
     private val APP_NAME_SWIPE_LEFT = "APP_NAME_SWIPE_LEFT"
     private val APP_NAME_SWIPE_RIGHT = "APP_NAME_SWIPE_RIGHT"
+    private val APP_NAME_DOUBLE_TAP = "APP_NAME_DOUBLE_TAP"
     private val APP_PACKAGE_SWIPE_LEFT = "APP_PACKAGE_SWIPE_LEFT"
     private val APP_PACKAGE_SWIPE_RIGHT = "APP_PACKAGE_SWIPE_RIGHT"
+    private val APP_PACKAGE_DOUBLE_TAP = "APP_PACKAGE_DOUBLE_TAP"
     private val APP_USER_SWIPE_LEFT = "APP_USER_SWIPE_LEFT"
     private val APP_USER_SWIPE_RIGHT = "APP_USER_SWIPE_RIGHT"
+    private val APP_USER_DOUBLE_TAP = "APP_USER_DOUBLE_TAP"
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_FILENAME, 0);
 
@@ -70,10 +72,6 @@ class Prefs(context: Context) {
     var firstHide: Boolean
         get() = prefs.getBoolean(FIRST_HIDE, true)
         set(value) = prefs.edit().putBoolean(FIRST_HIDE, value).apply()
-
-    var lockModeOn: Boolean
-        get() = prefs.getBoolean(LOCK_MODE, false)
-        set(value) = prefs.edit().putBoolean(LOCK_MODE, value).apply()
 
     var autoShowKeyboard: Boolean
         get() = prefs.getBoolean(AUTO_SHOW_KEYBOARD, true)
@@ -106,6 +104,10 @@ class Prefs(context: Context) {
     var swipeRightEnabled: Boolean
         get() = prefs.getBoolean(SWIPE_RIGHT_ENABLED, true)
         set(value) = prefs.edit().putBoolean(SWIPE_RIGHT_ENABLED, value).apply()
+
+    var doubleTapEnabled: Boolean
+        get() = prefs.getBoolean(DOUBLE_TAP_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(DOUBLE_TAP_ENABLED, value).apply()
 
     var themeColor: Int
         get() = prefs.getInt(THEME_COLOR, Constants.THEME_MODE_DARK)
@@ -227,6 +229,10 @@ class Prefs(context: Context) {
         get() = prefs.getString(APP_NAME_SWIPE_RIGHT, "PHONE").toString()
         set(value) = prefs.edit().putString(APP_NAME_SWIPE_RIGHT, value).apply()
 
+    var appNameDoubleTap: String
+        get() = prefs.getString(APP_NAME_DOUBLE_TAP, "CAMERA").toString()
+        set(value) = prefs.edit().putString(APP_NAME_DOUBLE_TAP, value).apply()
+
     var appPackageSwipeLeft: String
         get() = prefs.getString(APP_PACKAGE_SWIPE_LEFT, "").toString()
         set(value) = prefs.edit().putString(APP_PACKAGE_SWIPE_LEFT, value).apply()
@@ -235,6 +241,10 @@ class Prefs(context: Context) {
         get() = prefs.getString(APP_PACKAGE_SWIPE_RIGHT, "").toString()
         set(value) = prefs.edit().putString(APP_PACKAGE_SWIPE_RIGHT, value).apply()
 
+    var appPackageDoubleTap: String
+        get() = prefs.getString(APP_PACKAGE_DOUBLE_TAP, "").toString()
+        set(value) = prefs.edit().putString(APP_PACKAGE_DOUBLE_TAP, value).apply()
+
     var appUserSwipeLeft: String
         get() = prefs.getString(APP_USER_SWIPE_LEFT, "").toString()
         set(value) = prefs.edit().putString(APP_USER_SWIPE_LEFT, value).apply()
@@ -242,6 +252,10 @@ class Prefs(context: Context) {
     var appUserSwipeRight: String
         get() = prefs.getString(APP_USER_SWIPE_RIGHT, "").toString()
         set(value) = prefs.edit().putString(APP_USER_SWIPE_RIGHT, value).apply()
+
+    var appUserDoubleTap: String
+        get() = prefs.getString(APP_USER_DOUBLE_TAP, "").toString()
+        set(value) = prefs.edit().putString(APP_USER_DOUBLE_TAP, value).apply()
 
     fun getAppName(location: Int): String {
         return when (location) {

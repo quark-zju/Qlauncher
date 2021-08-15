@@ -1,6 +1,5 @@
 package app.olauncher
 
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
@@ -111,20 +110,5 @@ class MainActivity : AppCompatActivity() {
         if (message.isEmpty()) return
         messageTextView.text = message
         messageLayout.visibility = View.VISIBLE
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            Constants.REQUEST_CODE_ENABLE_ADMIN -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    Prefs(this).lockModeOn = true
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P)
-                        showMessage(getString(R.string.double_tap_lock_is_enabled_message))
-                    else
-                        showMessage(getString(R.string.double_tap_lock_uninstall_message))
-                }
-            }
-        }
     }
 }

@@ -2,7 +2,7 @@ Qlauncher
 
 This is a fork of [Olauncher](https://github.com/tanujnotes/Olauncher) with some customizations:
 
-- Make text align to right by default.
-- Use button style for home app labels.
-- Remove daily wallpaper feature. Drop Internet permission.
-- Double tap launches an app instead of locking screen. Drops Admin and Accessibility permissions.
+- Right-align text by default.
+- Apps use button, instead of label style.
+- Removed daily wallpaper feature. This drops Internet permission.
+- Removed lock screen feature. This drops Admin and Accessibility permissions. Double tap can be used to launch an app.

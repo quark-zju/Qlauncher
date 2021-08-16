@@ -57,7 +57,12 @@ class AppDrawerAdapter(
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val searchChars = constraint.toString()
                 appFilteredList = (if (searchChars.isEmpty()) appsList
-                else appsList.filter { app -> appLabelMatches(app.appLabel, searchChars) } as MutableList<AppModel>)
+                else appsList.filter { app ->
+                    appLabelMatches(
+                        app.appLabel,
+                        searchChars
+                    ) or appPackageNameMatches(app.appPackage, searchChars)
+                } as MutableList<AppModel>)
 
                 val filterResults = FilterResults()
                 filterResults.values = appFilteredList
@@ -77,6 +82,14 @@ class AppDrawerAdapter(
                 Normalizer.normalize(appLabel, Normalizer.Form.NFD)
                         .replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
                         .replace(Regex("[-_+,. ]"), "")
+                    .contains(searchChars, true))
+    }
+
+    private fun appPackageNameMatches(appPackage: String, searchChars: String): Boolean {
+        return (appPackage.contains(searchChars, true) or
+                Normalizer.normalize(appPackage, Normalizer.Form.NFD)
+                    .replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
+                    .replace(Regex("[-_+,. ]"), "")
                     .contains(searchChars, true))
     }
 
